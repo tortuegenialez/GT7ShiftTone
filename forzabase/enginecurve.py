@@ -66,6 +66,13 @@ class EngineCurve():
                 print(f'Saved curve to {filename}')
             else:
                 print("Curve not saved: no car ordinal")
+        elif 'run' in kwargs.keys():
+            self.curve_state = True
+            self.init_from_run(*args, **kwargs)
+            filename = self.FILENAME(fdp)
+            returnstatus = self.save(filename)
+            if returnstatus:
+                print(f'Saved curve to {filename}')
         elif self.file_exists(fdp):
             self.init_from_file(fdp, *args, **kwargs)
             #curve_state set to true in function
@@ -89,7 +96,6 @@ class EngineCurve():
             print(f'Loaded curve from {filename}')
             self.curve_state = True
 
-    
     #TODO: get revlimit from runcollector
     def init_from_run(self, run, *args, **kwargs):
         rpm = np.array([p.current_engine_rpm for p in run])
@@ -132,7 +138,7 @@ class EngineCurve():
             target_torque = self.torque_at_rpm(target_rpm)
             torque_ratio = target_torque / gtdp_torque
         return torque_ratio
-    
+
     def save(self, filename, overwrite=True):
         if exists(filename):
             if not overwrite:

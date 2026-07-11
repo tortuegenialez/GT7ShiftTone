@@ -14,6 +14,9 @@ import tkinter.ttk
 
 #tell Windows we are DPI aware
 import os
+
+from numpy.conftest import pytest_addoption
+
 if os.name == 'nt':
     import ctypes
     PROCESS_SYSTEM_DPI_AWARE = 1
@@ -31,8 +34,8 @@ from forzagui.rpm import GUIRPM
 from forzagui.history import GUIHistory
 from forzagui.carordinal import GUICarOrdinal
 from forzagui.gear import GUIGears
-from forzagui.configvar import (GUIPeakPower, GUIToneOffset, GUIRevlimit, 
-                                GUIVolume, GUIConfigButton)
+from forzagui.configvar import (GUIPeakPower, GUIToneOffset, GUIRevlimit,
+                                GUIVolume, GUIConfigButton, DeleteOnResetButton)
 from forzagui.enginecurve import GUIEngineCurve
 
 from utility import Variable
@@ -51,14 +54,15 @@ from utility import Variable
     # Test if changing dpi works as expected
 
 #tkinter GUI wrapper around ForzaBeep
-class GenericGUIShiftBeep():
-    TITLE = "ForzahiftTone: Dynamic shift tone for the Forza series"
+class GenericGUIShiftBeep:
     WIDTH, HEIGHT = 815, 239 #most recent dump of size at 150% scaling
     WRITEBACK_VARS = (ShiftBeep.WRITEBACK_VARS +
                       ['revlimit_percent', 'revlimit_offset', 'tone_offset',
-                       'hysteresis_percent', 'volume',
-                       'window_x', 'window_y', 'dynamictoneoffset',
-                       'includereplay', 'bluetooth_keepalive'])
+                       'hysteresis_percent', 'volume', 'window_x', 'window_y',
+                       'dynamictoneoffset', 'includereplay',
+                       'bluetooth_keepalive', 'delete_on_reset_button',
+                       # 'allow_override_shiftrpm'
+                       ])
     
     def __init__(self):
         super().__init__()
@@ -66,6 +70,8 @@ class GenericGUIShiftBeep():
         self.root.mainloop()
         
     def init_vars(self):
+        self.delete_on_reset_button = DeleteOnResetButton(config)
+
         super().init_vars()
         self.init_tkinter()
         self.init_gui_vars()
@@ -125,7 +131,7 @@ class GenericGUIShiftBeep():
         
         self.buttonreset = tkinter.Button(root, text='Reset', borderwidth=3,
                                           font = tkinter.font.Font(size = 8),
-                                          command=self.reset)
+                                          command=self.reset_handler)
         self.init_gui_buttonframe()
 
     def init_gui_grid_buttonframe(self):
@@ -156,6 +162,12 @@ class GenericGUIShiftBeep():
         self.tone_offset.grid( row=row+3, column=3)
         self.car_ordinal.grid( row=row+3, column=7)
         self.buttonreset.grid( row=row+3, column=9)
+
+    # called when pressing the reset button
+    def reset_handler(self):
+        if self.delete_on_reset_button.get():
+            self.curve.delete(self.car_ordinal)
+        self.reset()
 
     def reset(self):
         super().reset()
@@ -190,6 +202,7 @@ class GenericGUIShiftBeep():
         self.root.destroy()
 
 class GUIShiftBeep(GenericGUIShiftBeep, ShiftBeep):
+    TITLE = "ForzaShiftTone: Dynamic shift tone for the Forza series"
     def __init__(self):
         super().__init__()
     

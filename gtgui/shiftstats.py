@@ -130,9 +130,9 @@ def get_distance(vtacurve):
 #original and modified are both VTACurves
 def get_plotdata(original, modified, mode='trapz'):
     if mode == 'trapz':
-        orig_distance = np.array([np.trapz(original.v[:i+1], original.t[:i+1]) 
+        orig_distance = np.array([np.trapezoid(original.v[:i+1], original.t[:i+1])
                                              for i in range(len(original.a))])    
-        mod_distance = np.array([np.trapz(modified.v[:i+1], modified.t[:i+1]) 
+        mod_distance = np.array([np.trapezoid(modified.v[:i+1], modified.t[:i+1])
                                              for i in range(len(modified.a))])
     elif mode == 'position':
         orig_distance = get_distance(original)

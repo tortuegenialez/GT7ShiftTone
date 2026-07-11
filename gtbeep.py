@@ -44,7 +44,7 @@ Created on Sun May  7 19:35:24 2023
     
     #Add logger for enhanced logging (debug, error, warning, etc)
     
-from gtbase.shiftbeep import ShiftBeep
+# from gtbase.shiftbeep import ShiftBeep
 from gtgui.shiftbeep import GUIShiftBeep
 # from forzabase.shiftbeep import ShiftBeep
 # from forzagui.shiftbeep import GUIShiftBeep

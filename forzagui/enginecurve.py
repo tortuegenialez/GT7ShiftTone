@@ -6,6 +6,8 @@ Created on Sat Nov  4 14:50:56 2023
 """
 
 import numpy as np
+from os import remove as os_remove
+from os.path import exists as os_exists
 
 from mttkinter import mtTkinter as tkinter
 #import tkinter
@@ -288,6 +290,21 @@ class GenericGUIEngineCurve():
         super().update(fdp, *args, **kwargs)
         if self.is_loaded(): #NOTE: this is from EngineCurve
             self.enable()
+
+    # car_ordinal is a Variable, we need to use .get()
+    def delete(self, car_ordinal):
+        class FakePacket():
+            def __init__(self_, car_ordinal_):
+                self_.car_ordinal = car_ordinal_
+        fdp = FakePacket(car_ordinal.get())
+        filename = self.FILENAME(fdp)
+        if not os_exists(filename):
+            return
+        try:
+            os_remove(filename)
+            print(f"Curve {filename} deleted")
+        except:
+            print("Curve deletion failed")
 
     def reset(self):
         super().reset()

@@ -111,7 +111,7 @@ class GUIHysteresisPercent(GUIAdjustable):
                          convert_to_gui=factor_to_percent,
                          values=np.arange(LOWER, UPPER, 0.001), var=var)
 
-class GUICheckButton():
+class GUICheckButton:
     TEXT = 'GUICheckButton'
     COLUMNSPAN = 3
     def __init__(self, root, config, var):
@@ -132,6 +132,13 @@ class GUICheckButton():
         value = self.get()
         self.var.set(value)
 
+class DeleteOnResetButton(Variable):
+    def __init__(self, config):
+        super().__init__(defaultvalue=config.delete_curve_on_reset_button)
+
+class GUIDeleteOnResetButton(GUICheckButton):
+    TEXT = 'Reset button deletes curve'
+
 class GUIIncludeReplay(GUICheckButton):
     TEXT = 'Include replays'
 
@@ -140,6 +147,9 @@ class GUIDynamicToneOffsetToggle(GUICheckButton):
 
 class GUIBluetoothKeepaliveToggle(GUICheckButton):
     TEXT = 'Bluetooth keepalive'
+
+class GUIAllowOverrideShiftRPM(GUICheckButton):
+    TEXT = 'Allow shift RPM override'
 
 #TODO: see if removing tone_offset_var=self is possible
 #we only need .get and .set, which are from Variable in the end
@@ -183,7 +193,18 @@ class GUIRevlimit(Variable):
         self.entry = tkinter.Entry(root, width=6, textvariable=self.tkvar,
                                    justify=tkinter.RIGHT, state='readonly')
         self.unit = tkinter.Label(root, text='RPM')
-    
+
+        self.label.bind('<Double-Button-1>', self.target_handler)
+
+    def target_handler(self, event=None):
+        state = self.entry.cget('state')
+        newstate = 'normal' if state == 'readonly' else 'readonly'
+        self.entry.config(state=newstate)
+
+        #reset the displayed value back to the original value
+        if newstate == 'readonly':
+            self.set(self.get())
+
     def grid(self, column, sticky='', *args, **kwargs):
         self.label.grid(column=column, sticky=tkinter.E, *args, **kwargs)
         self.entry.grid(column=column+1, sticky=sticky, *args, **kwargs)
@@ -191,6 +212,13 @@ class GUIRevlimit(Variable):
         
     def set_bg(self, state):
         self.entry.configure(readonlybackground=self.BG.get(state))
+
+    # return value in entry if it is editable, otherwise return revlimit
+    def get(self):
+        if (self.entry.cget('state') == 'normal' and
+                                       self.tkvar.get() != self.defaultvalue):
+            return int(self.tkvar.get())
+        return super().get()
 
     def set(self, value, bg_state='curve'):
         super().set(value)
@@ -202,7 +230,7 @@ class GUIRevlimit(Variable):
         self.tkvar.set(self.defaultguivalue)
         self.set_bg(state='initial')
 
-class GUIPeakPower():
+class GUIPeakPower:
     def __init__(self, root, defaultguivalue=''):
         self.defaultguivalue = defaultguivalue
         
@@ -270,14 +298,16 @@ class GUIVolume(Volume):
 #     def invoke(self):
 #         self.button.invoke()
 
-class GUIConfigWindow():
+class GUIConfigWindow:
     TITLE='ForzaShiftTone: Settings'
     CLASSES = { 'hysteresis_percent':  GUIHysteresisPercent,
                 'revlimit_percent':    GUIRevlimitPercent,
                 'revlimit_offset':     GUIRevlimitOffset,
                 'dynamictoneoffset':   GUIDynamicToneOffsetToggle,
                 'includereplay':       GUIIncludeReplay,
-                'bluetooth_keepalive': GUIBluetoothKeepaliveToggle
+                'bluetooth_keepalive': GUIBluetoothKeepaliveToggle,
+                'delete_on_reset_button': GUIDeleteOnResetButton,
+                # 'allow_override_shiftrpm': GUIAllowOverrideShiftRPM,
               }
     
     def __init__(self, root, config, adjustables):
@@ -330,7 +360,7 @@ class GUIConfigWindow():
 
 #enable button once we have a settings window
 #adjustables is an array of Variables we can display to adjust
-class GUIConfigButton():
+class GUIConfigButton:
     def __init__(self, root, config, adjustables):
         self.button = tkinter.Button(root, text='Settings', command=self.open,
                                      borderwidth=3)

@@ -125,6 +125,7 @@ class SpeedTest():
             self.run_finished()
             self.state = self.INITIAL
             return True #return true if run finished
+        return False
             
     def run_finished(self):
         #Most recent run is always first element

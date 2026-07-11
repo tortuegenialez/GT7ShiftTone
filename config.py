@@ -130,6 +130,12 @@ class config():
     #toggle to place fuel stats button in GUI and whether loop function runs
     fuel_stats_active = False
 
+    #ForzaGUI only: delete curve if user presses the reset button
+    delete_curve_on_reset_button = False
+
+    #Allow user to override shift RPM value in GUI
+    allow_override_shiftrpm = False
+
     @classmethod
     def get_dict(cls):
         blocklist = ['update', 'get_dict', 'load_from', 'write_to']

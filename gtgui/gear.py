@@ -32,6 +32,7 @@ class GUIGear(GenericGUIGear, Gear):
                              dict(zip(['fg', 'readonlybackground'], t2)))
         
     def __init__(self, number, root, config):
+        self.var_bound = None
         super().__init__(number, root, config)
         if number in [9, 10]:
             self.label.config(state=tkinter.DISABLED)
@@ -61,6 +62,7 @@ class GUIGear(GenericGUIGear, Gear):
 
 class GUIGears(GenericGUIGears, Gears):
     def __init__(self, root, config):
+        self.allow_override_shiftrpm = config.allow_override_shiftrpm
         self.gears = [None] + [GUIGear(g, root, config) for g in self.GEARLIST]
         self.highest = None
         self.init_window(root)

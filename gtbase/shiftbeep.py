@@ -145,7 +145,8 @@ class ShiftBeep(ShiftBeep):
         print("Updating gears")
         self.gears.update(gtdp, load_stock)
 
-        super().handle_curve_change(gtdp, load_stock, *args, **kwargs)
+        super().handle_curve_change(gtdp, load_stock=load_stock,
+                                    *args, **kwargs)
         self.speedstats.set_revlimit(self.revlimit.get())
 
     def loop_update_speedstats(self, gtdp):

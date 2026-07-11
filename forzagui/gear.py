@@ -14,7 +14,7 @@ from mttkinter import mtTkinter as tkinter
 #In the GUI the entry for variance is gridded over shiftrpm until shiftrpm
 #is calculated. There is a toggle for relative ratio and drivetrain ratio by
 #double-clicking the Rel. Ratio / Ratio label in GUIGears
-class GenericGUIGear():
+class GenericGUIGear:
     ENTRY_WIDTH = 6
 
     FG_DEFAULT = '#000000'
@@ -86,6 +86,12 @@ class GenericGUIGear():
             return int(val / self.shiftrpm_round) * self.shiftrpm_round
         return math.ceil(val / self.shiftrpm_round) * self.shiftrpm_round
 
+    #if the entry allows modification, return that instead of the base shiftrpm
+    def get_shiftrpm(self):
+        if self.shiftrpm_entry.cget('state') == 'normal':
+            return self.shiftrpm_var.get()
+        return super().get_shiftrpm()
+
     def set_shiftrpm(self, val):
         super().set_shiftrpm(val)
         newval = self.round(val)
@@ -143,16 +149,30 @@ class GenericGUIGear():
             self.relratio_entry.grid_remove()
             self.ratio_entry.grid()
 
+    #Toggle editability of shiftrpm entry, for manual override of shiftrpm
+    def toggle_override_shiftrpm(self):
+        state = self.shiftrpm_entry.cget('state')
+        newstate = 'normal' if state == 'readonly' else 'readonly'
+        self.shiftrpm_entry.config(state=newstate)
+
+        #reset the displayed value back to the optimal (rounded) value
+        if newstate == 'readonly':
+            self.set_shiftrpm(self.get_shiftrpm())
+
+
 class GUIGear(GenericGUIGear, Gear):
     def __init__(self, number, root, config):
         super().__init__(number, root, config)
 
-class GenericGUIGears():
+
+class GenericGUIGears:
     LABEL_WIDTH = 8
     ROW_COUNT = 3 #for ForzaBeep GUI: how many grid rows a gear takes up
     def __init__(self, root, config):
+        self.allow_override_shiftrpm = config.allow_override_shiftrpm
+
         self.gears = [None] + [GUIGear(g, root, config) for g in self.GEARLIST]
-        
+
         self.init_window(root)
 
     def init_window(self, root):
@@ -164,6 +184,8 @@ class GenericGUIGears():
         self.label_ratio = tkinter.Label(root, textvariable=self.ratio_var,
                                          **opts)
         self.label_ratio.bind('<Double-Button-1>', self.ratio_handler)
+        if self.allow_override_shiftrpm:
+            self.label_target.bind('<Double-Button-1>', self.target_handler)
     
     #called by ShiftBeep
     def init_grid(self):
@@ -173,6 +195,10 @@ class GenericGUIGears():
         
         for i, g in enumerate(self.gears[1:], start=1):
             g.init_grid()
+
+    def target_handler(self, event=None):
+        for gear in self.gears[1:]:
+            gear.toggle_override_shiftrpm()
 
     def ratio_handler(self, event=None):
         if self.ratio_var.get() == 'Rel. Ratio':

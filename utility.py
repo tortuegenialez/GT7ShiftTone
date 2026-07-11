@@ -231,7 +231,7 @@ def simplify_curve(x, y, xmin=None, xmax=None, n=500):
 def np_drag_fit(accelrun, dragrun, dragrun_bounds=(10, None), 
                 accelrun_bounds=(0, None), smoothing='multi_rolling', 
                 accelrun_smooth=(3,21), sort_rpm=True, interval=100,
-                relative=True):
+                relative=True, *args, **kwargs):
 
     if smoothing == 'rolling':
         accelrun.rolling_avg(box_pts=accelrun_smooth)

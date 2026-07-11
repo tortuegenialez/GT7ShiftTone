@@ -12,7 +12,8 @@ from forzagui.configvar import ( GUIRevlimitOffset, GUIRevlimitPercent,
                                  GUIIncludeReplay, GUIDynamicToneOffsetToggle,
                                  GUIToneOffset, GUIRevlimit, GUIPeakPower, 
                                  GUIVolume, GUIConfigButton,
-                                 GUIConfigWindow, GUIBluetoothKeepaliveToggle)
+                                 GUIConfigWindow, GUIBluetoothKeepaliveToggle,
+                                 GUIAllowOverrideShiftRPM)
 
 #The in-game revbar scales off the revbar variable in telemetry:
 #Starts at 85% and starts blinking at 99%
@@ -107,6 +108,9 @@ class GUIDynamicToneOffsetToggle(GUIDynamicToneOffsetToggle):
 class GUIBluetoothKeepaliveToggle(GUIBluetoothKeepaliveToggle):
     pass
 
+class GUIAllowOverrideShiftRPM(GUIAllowOverrideShiftRPM):
+    pass
+
 class GUIToneOffset(GUIToneOffset):
     pass
 
@@ -138,6 +142,7 @@ class GUIConfigWindow(GUIConfigWindow):
                 'includereplay':      GUIIncludeReplay,
                 'stock_curve_toggle': GUIStockCurveToggle,
                 'bluetooth_keepalive': GUIBluetoothKeepaliveToggle,
+                # 'allow_override_shiftrpm': GUIAllowOverrideShiftRPM,
                }
 
 #enable button once we have a settings window
